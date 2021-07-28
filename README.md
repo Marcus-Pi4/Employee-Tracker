@@ -1,6 +1,8 @@
 # Employee-Tracker
 An employee database made with Node.js, MySQL2 package, Inquirer package, and the console.table package.
+
 I want to create a command-line application with the following User Story:
+
 WHEN I start the application
 THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
 WHEN I choose to view all departments
