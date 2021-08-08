@@ -1,0 +1,29 @@
+{
+  "name": "Employee-Tracker",
+  "version": "1.0.0",
+  "description": "An employee database made with Node.js, MySQL2 package, Inquirer package, and the console.table package.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Marcus-Pi4/Employee-Tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Marcus-Pi4/Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/Marcus-Pi4/Employee-Tracker#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "inquirer": "^8.1.2",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
