@@ -3,21 +3,25 @@ const mysql = require('mysql');
 const path = require('path');
 const inquirer = require('inquirer');
 const app = express();
-
-const cmdChoices = ['View All Departments','View All Roles','View All Employees', 'Add Department', 'Add Role', 'Add Employee'];
+require('dotenv').config();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-const database = mysql.createConnection(
+const db = mysql.createConnection(
     {
         host: 'localhost',
-        user: 'root',
-        password: 'MySQLUniquePassword#1934',
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
         database: 'employees_db'
     },
     console.log('connected to employee database')
 )
+
+db.connect((err) => {
+    if (err) console.log('error connecting');
+    console.log(err)
+})
 
 userChoices();
 
@@ -31,7 +35,6 @@ function userChoices() {
             name: 'choice',
         },
     ]).then((answer) => {
-        console.log(answer.choice);
         switch (answer.choice) {
             case 'View All Departments':
                 console.log(1);
@@ -64,9 +67,15 @@ function userChoices() {
 
 
 function viewAllDepartments() {
+    db.query('SELECT * FROM department', (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        console.log(result);
+    }
     // connection.
     //  shows formatted sql table with department names and ID's
-}
+)}
 
 function viewAllRoles() {
     //  shows job title
@@ -85,18 +94,18 @@ function viewAllEmployees() {
 }
 
 function addDepartment() {
-    let questions = [
+    return inquirer.prompt([
         { 
             type: 'input', 
             name: 'departmentName',
             message: 'Input the name of the department.'
         },
-    ]
+    ])
     //  enters department name to database
-
 }
+
 function addRole() {
-    let questions = [
+    return inquirer.prompt([
         { 
             type: 'input', 
             name: 'roleName',
@@ -112,14 +121,13 @@ function addRole() {
             name: 'departmentName',
             message: 'Input the department name.'
         },
-    ]
-
+    ])
     // add role to database
     // db.query INSERT INTO roles (roleName, roleSalary, departmentName)
 }
 
 function addEmployee() {
-    let questions = [
+    return inquirer.prompt([
         {
             type: 'input',
             name: 'firstName',
@@ -135,7 +143,6 @@ function addEmployee() {
             name: 'employeeRole',
             message: 'Input the employees role.',
         },
-    ]
+    ])
     // takes all values and merges with sql table,
 }
-    
