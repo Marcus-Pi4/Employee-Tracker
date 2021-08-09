@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS roles (
     department_id INT,
     FOREIGN KEY (department_id)
     REFERENCES department(id)
-    ON DELETE SET NULL
+    ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS employee (
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS employee (
     role_id INT,
     FOREIGN KEY (role_id)
     REFERENCES roles(id) 
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
     manager_id INT,
     FOREIGN KEY(manager_id) 
     REFERENCES employee(id)
