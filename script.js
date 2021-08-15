@@ -13,7 +13,7 @@ const db = mysql.createConnection(
         host: 'localhost',
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
-        database: 'employees_db'
+        database: 'employee_db'
     },
     console.log('connected to employee database')
 )
@@ -23,77 +23,107 @@ db.connect((err) => {
     console.log(err)
 })
 
-userChoices();
+start();
+
+async function start() {
+    const choice = await userChoices();
+    await choiceSwitch(choice);
+    const answer = await promptToContinue();
+    if (answer.continue) {
+        start();
+    } else {
+        console.log('Goodbye!');
+        return '';
+    }
+    return '';
+}
+
+function promptToContinue() {
+    return inquirer.prompt([
+        {
+          type: 'confirm',
+          message: 'do you want to continue',
+          name: 'continue',
+        },
+      ]);
+}
 
 function userChoices() {
-    inquirer
-    .prompt([
+    return inquirer.prompt([
         { 
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View All Departments','View All Roles','View All Employees', 'Add Department', 'Add Role', 'Add Employee'],
+            choices: [
+                'View All Departments',
+                'View All Roles',
+                'View All Employees',
+                'Add Department', 
+                'Add Role',
+                'Add Employee'
+            ],
             name: 'choice',
         },
-    ]).then((answer) => {
-        switch (answer.choice) {
-            case 'View All Departments':
-                console.log(1);
-                viewAllDepartments();
-                break;
-            case 'View All Roles':
-                console.log(2);
-                viewAllRoles();
-                break;
-            case 'View All Employees':
-                console.log(3);
-                viewAllEmployees();
-                break;
-            case 'Add Department':
-                console.log(4);
-                addDepartment();
-                break;
-            case 'Add Role':
-                console.log(5);
-                addRole();
-                break;
-            case 'Add Employee':
-                console.log(6);
-                addEmployee();
-                break;
-        };
-        userChoices();
-    });
+    ])
+}
+async function choiceSwitch(userChoice) {
+    switch (userChoice.choice) {
+        case 'View All Departments':
+            viewAllDepartments();
+            break;
+        case 'View All Roles':
+            viewAllRoles();
+            break;
+        case 'View All Employees':
+            viewAllEmployees();
+            break;
+        case 'Add Department':
+            let addDepartmentArray = await addDepartmentPrompt();
+            db.query(`INSERT INTO departments (name) VALUES ('${addDepartmentArray.departmentName}')`);
+            viewAllDepartments();
+            break;
+        case 'Add Role':
+            let addRoleArray = await addRolePrompt();
+            db.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${addRoleArray.roleName}', '${addRoleArray.roleSalary}', '${addRoleArray.departmentId}')`);
+            console.log(addRoleArray);
+            viewAllRoles();
+            break;
+        case 'Add Employee':
+            let addEmployeeArray = await addEmployeePrompt();
+            console.log(addEmployeeArray);
+            db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('${addEmployeeArray.firstName}', '${addEmployeeArray.lastName}', '${addEmployeeArray.employeeRoleId}', '${addEmployeeArray.managerId}')`);
+            viewAllEmployees();
+            break;
+    };
 }
 
-
 function viewAllDepartments() {
-    db.query('SELECT * FROM department', (err, result) => {
+    db.query('SELECT * FROM departments ORDER BY id', (err, result) => {
         if (err) {
             console.log(err);
-        }
-        console.log(result);
+            }
+            console.table(result);
     }
-    // connection.
-    //  shows formatted sql table with department names and ID's
 )}
 
 function viewAllRoles() {
-    //  shows job title
-    //  shows role id
-    //  shows department role belongs to
-}
+    db.query('SELECT * FROM roles ORDER BY id', (err, result) => {
+        if (err) {
+            console.log(err);
+            }
+            console.table(result);
+    }
+)}
 
 function viewAllEmployees() {
-    // shows employee id's
-    // shows first names
-    // shows last names
-    // shows job title
-    // shows department
-    // shows salaries
-    // shows their managers
-}
+    db.query('SELECT * FROM employees ORDER BY id', (err, result) => {
+        if (err) {
+            console.log(err);
+            }
+            console.table(result);
+        }
+)}
 
-function addDepartment() {
+function addDepartmentPrompt() {
     return inquirer.prompt([
         { 
             type: 'input', 
@@ -101,10 +131,9 @@ function addDepartment() {
             message: 'Input the name of the department.'
         },
     ])
-    //  enters department name to database
 }
 
-function addRole() {
+function addRolePrompt() {
     return inquirer.prompt([
         { 
             type: 'input', 
@@ -118,15 +147,13 @@ function addRole() {
         },
         {
             type: 'input',
-            name: 'departmentName',
-            message: 'Input the department name.'
+            name: 'departmentId',
+            message: 'Input the department ID.'
         },
     ])
-    // add role to database
-    // db.query INSERT INTO roles (roleName, roleSalary, departmentName)
 }
 
-function addEmployee() {
+function addEmployeePrompt() {
     return inquirer.prompt([
         {
             type: 'input',
@@ -139,10 +166,14 @@ function addEmployee() {
             message: 'Input the employees last name.',
         },
         {
-            type:'input',
-            name: 'employeeRole',
-            message: 'Input the employees role.',
+            type: 'input',
+            name: 'employeeRoleId',
+            message: 'Input the employee role ID.',
+        },
+        {
+            type: 'input',
+            name: 'managerId',
+            message: 'Input the employees manager ID'
         },
     ])
-    // takes all values and merges with sql table,
 }
